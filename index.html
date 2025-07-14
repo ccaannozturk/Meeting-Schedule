@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -75,14 +75,12 @@
 </head>
 <body class="flex items-center justify-center min-h-screen p-4 sm:p-6 lg:p-8">
 
-
     <!-- Main Infographic Container -->
     <div class="w-full max-w-2xl mx-auto">
         
         <h1 class="text-3xl sm:text-4xl font-bold text-center mb-8" style="color: var(--adyen-green-vibrant);">
             PFC - Week Start Meeting Lead
         </h1>
-
 
         <!-- Stylized Dropdown Menu -->
         <div id="visual-dropdown" class="rounded-lg overflow-hidden">
@@ -91,7 +89,6 @@
             <div id="selected-item" class="selected-item-box flex items-center justify-between p-4 rounded-t-lg">
                 <!-- Populated by JavaScript -->
             </div>
-
 
             <!-- Scrollable and Interactive Dropdown List -->
             <div id="dropdown-list-view" class="dropdown-list rounded-b-lg">
@@ -103,16 +100,13 @@
             Schedule for calendar year 2025. Click the box above to see all dates.
         </p>
 
-
     </div>
-
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // --- PART 1: CONTENT & LOGIC GENERATION ---
             const TEAM_ROTA = ['Jan Beyers', 'Can', 'Jennifer', 'Azhar', 'Maegan', 'Marthe'];
             const ROTATION_START_DATE = new Date('2025-07-14T00:00:00Z');
-
 
             function getWeekNumber(d) {
                 const year = d.getUTCFullYear();
@@ -126,7 +120,6 @@
                 const weeksSinceFirstMonday = Math.floor(diff / (1000 * 60 * 60 * 24 * 7));
                 return weeksSinceFirstMonday + 2;
             }
-
 
             function generateSchedule() {
                 const schedule = [];
@@ -153,13 +146,11 @@
                 return schedule;
             }
 
-
             // --- PART 2: INTERACTIVE VISUAL DESIGN ---
             const schedule = generateSchedule();
             const selectedItemContainer = document.getElementById('selected-item');
             const listContainer = document.getElementById('dropdown-list-view');
             let currentlySelectedIndex = -1;
-
 
             function updateSelectedItemBox(index) {
                 const itemData = schedule[index];
@@ -175,7 +166,6 @@
                     </svg>
                 `;
             }
-
 
             function populateDropdownList() {
                 listContainer.innerHTML = '';
@@ -193,7 +183,6 @@
                         </span>
                     `;
 
-
                     itemElement.addEventListener('click', (e) => {
                         e.stopPropagation();
                         const newIndex = parseInt(e.currentTarget.dataset.index, 10);
@@ -203,11 +192,9 @@
                         listContainer.classList.remove('is-open');
                     });
 
-
                     listContainer.appendChild(itemElement);
                 });
             }
-
 
             function updateListHighlight() {
                 const allItems = listContainer.querySelectorAll('.dropdown-item');
@@ -225,17 +212,41 @@
             
             function initialize() {
                 populateDropdownList();
-                const initialIndex = schedule.findIndex(entry => entry.date.getTime() === ROTATION_START_DATE.getTime());
+                
+                // --- DYNAMICALLY FIND THE CURRENT WEEK ---
+                const today = new Date();
+                // Create a UTC date at midnight to compare with our schedule
+                const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+
+                // Find the Monday of the current week
+                const dayOfWeek = todayUTC.getUTCDay(); // 0=Sun, 1=Mon, ...
+                const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // If Sunday, go back 6 days. Otherwise, go back to Monday.
+                todayUTC.setUTCDate(todayUTC.getUTCDate() - daysToSubtract);
+
+                // Find the index of this Monday in our schedule
+                let initialIndex = schedule.findIndex(entry => entry.date.getTime() === todayUTC.getTime());
+
+                // Fallback logic for dates outside the 2025 schedule
+                if (initialIndex === -1) {
+                    if (today < schedule[0].date) {
+                        initialIndex = 0; // If before 2025, show the first week
+                    } else if (today > schedule[schedule.length - 1].date) {
+                        initialIndex = schedule.length - 1; // If after 2025, show the last week
+                    } else {
+                        // If for some reason it's still not found, default to the rotation start date
+                        initialIndex = schedule.findIndex(entry => entry.date.getTime() === ROTATION_START_DATE.getTime());
+                    }
+                }
                 
                 if (initialIndex !== -1) {
                     currentlySelectedIndex = initialIndex;
                     updateSelectedItemBox(initialIndex);
                     updateListHighlight();
                 } else {
-                    console.error("Could not find the start date in the schedule.");
+                    // This should realistically not be reached
+                    console.error("Could not determine the initial week.");
                     selectedItemContainer.innerText = "Error generating schedule.";
                 }
-
 
                 selectedItemContainer.addEventListener('click', () => {
                     listContainer.classList.toggle('is-open');
@@ -245,7 +256,6 @@
                     }
                 });
             }
-
 
             initialize();
         });
