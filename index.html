@@ -1,0 +1,254 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PFC - Week Start Meeting Lead</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Define Adyen's vibrant color palette as CSS variables */
+        :root {
+            --adyen-green-vibrant: #0abf53;
+            --adyen-blue-dark: #00244D;
+            --adyen-green-light: #e6f9ef;
+            --adyen-light-gray: #f8f9fa;
+            --adyen-border-gray: #e9ecef;
+            --adyen-text-dark: #212529;
+            --adyen-text-light: #6c757d;
+        }
+        /* Apply base styles and font */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--adyen-light-gray);
+            color: var(--adyen-text-dark);
+        }
+        /* Style for the main box, making it interactive */
+        .selected-item-box {
+            background-color: white;
+            border: 2px solid var(--adyen-green-vibrant); /* Updated to vibrant green */
+            box-shadow: 0 4px 12px rgba(0, 36, 77, 0.1);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .selected-item-box:hover {
+             background-color: #f8f9fa;
+        }
+        /* Styling for the dropdown list container */
+        .dropdown-list {
+            background-color: white;
+            border: 1px solid var(--adyen-border-gray);
+            border-top: none;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+            max-height: 0; /* Initially hidden */
+            overflow-y: auto;
+            opacity: 0;
+            visibility: hidden;
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out, visibility 0.3s;
+        }
+        /* Style for when the dropdown is open */
+        .dropdown-list.is-open {
+            max-height: 240px; /* Adjust as needed, approx 5 items */
+            opacity: 1;
+            visibility: visible;
+        }
+        /* Styling for individual list items */
+        .dropdown-item {
+            border-bottom: 1px solid var(--adyen-border-gray);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        .dropdown-item:hover {
+            background-color: #f1f3f5;
+        }
+        /* Highlight for the selected item within the list */
+        .dropdown-item.is-selected {
+            background-color: var(--adyen-green-light); /* Updated to light green */
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 sm:p-6 lg:p-8">
+
+
+    <!-- Main Infographic Container -->
+    <div class="w-full max-w-2xl mx-auto">
+        
+        <h1 class="text-3xl sm:text-4xl font-bold text-center mb-8" style="color: var(--adyen-green-vibrant);">
+            PFC - Week Start Meeting Lead
+        </h1>
+
+
+        <!-- Stylized Dropdown Menu -->
+        <div id="visual-dropdown" class="rounded-lg overflow-hidden">
+            
+            <!-- Selected Item Box (Clickable to toggle dropdown) -->
+            <div id="selected-item" class="selected-item-box flex items-center justify-between p-4 rounded-t-lg">
+                <!-- Populated by JavaScript -->
+            </div>
+
+
+            <!-- Scrollable and Interactive Dropdown List -->
+            <div id="dropdown-list-view" class="dropdown-list rounded-b-lg">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+        
+        <p class="text-center text-sm mt-6" style="color: var(--adyen-text-light);">
+            Schedule for calendar year 2025. Click the box above to see all dates.
+        </p>
+
+
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- PART 1: CONTENT & LOGIC GENERATION ---
+            const TEAM_ROTA = ['Jan Beyers', 'Can', 'Jennifer', 'Azhar', 'Maegan', 'Marthe'];
+            const ROTATION_START_DATE = new Date('2025-07-14T00:00:00Z');
+
+
+            function getWeekNumber(d) {
+                const year = d.getUTCFullYear();
+                let firstMonday = new Date(Date.UTC(year, 0, 1));
+                const day = firstMonday.getUTCDay();
+                if (day !== 1) {
+                    firstMonday.setUTCDate(firstMonday.getUTCDate() + (1 - day + 7) % 7);
+                }
+                if (d < firstMonday) return 1;
+                const diff = d.getTime() - firstMonday.getTime();
+                const weeksSinceFirstMonday = Math.floor(diff / (1000 * 60 * 60 * 24 * 7));
+                return weeksSinceFirstMonday + 2;
+            }
+
+
+            function generateSchedule() {
+                const schedule = [];
+                const year = 2025;
+                let currentDate = new Date(Date.UTC(year, 0, 1));
+                let rotaIndex = 0;
+                while (currentDate.getUTCFullYear() === year) {
+                    if (currentDate.getUTCDay() === 1) {
+                        const weekNumber = getWeekNumber(currentDate);
+                        const dateString = currentDate.toLocaleDateString('en-GB', {
+                            day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC'
+                        }).replace(/ /g, '/');
+                        let assignedPerson = '';
+                        if (currentDate >= ROTATION_START_DATE) {
+                            assignedPerson = TEAM_ROTA[rotaIndex % TEAM_ROTA.length];
+                            rotaIndex++;
+                        }
+                        schedule.push({
+                            date: new Date(currentDate.getTime()), dateString, weekString: `Week ${weekNumber}`, person: assignedPerson
+                        });
+                    }
+                    currentDate.setUTCDate(currentDate.getUTCDate() + 1);
+                }
+                return schedule;
+            }
+
+
+            // --- PART 2: INTERACTIVE VISUAL DESIGN ---
+            const schedule = generateSchedule();
+            const selectedItemContainer = document.getElementById('selected-item');
+            const listContainer = document.getElementById('dropdown-list-view');
+            let currentlySelectedIndex = -1;
+
+
+            function updateSelectedItemBox(index) {
+                const itemData = schedule[index];
+                selectedItemContainer.innerHTML = `
+                    <span class="font-semibold text-base sm:text-lg" style="color: var(--adyen-blue-dark);">
+                        ${itemData.dateString} - ${itemData.weekString}
+                    </span>
+                    <span class="font-bold text-base sm:text-lg" style="color: var(--adyen-text-dark);">
+                        ${itemData.person}
+                    </span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-4 text-gray-400 transition-transform duration-300 ${listContainer.classList.contains('is-open') ? 'rotate-180' : ''}">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                `;
+            }
+
+
+            function populateDropdownList() {
+                listContainer.innerHTML = '';
+                schedule.forEach((itemData, index) => {
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'dropdown-item flex items-center justify-between p-4';
+                    itemElement.dataset.index = index;
+                    
+                    itemElement.innerHTML = `
+                        <span class="text-sm sm:text-base text-left" style="color: var(--adyen-text-light);">
+                            ${itemData.dateString} - ${itemData.weekString}
+                        </span>
+                        <span class="text-sm sm:text-base font-semibold text-right pl-4" style="color: var(--adyen-text-dark);">
+                            ${itemData.person}
+                        </span>
+                    `;
+
+
+                    itemElement.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const newIndex = parseInt(e.currentTarget.dataset.index, 10);
+                        currentlySelectedIndex = newIndex;
+                        updateSelectedItemBox(newIndex);
+                        updateListHighlight();
+                        listContainer.classList.remove('is-open');
+                    });
+
+
+                    listContainer.appendChild(itemElement);
+                });
+            }
+
+
+            function updateListHighlight() {
+                const allItems = listContainer.querySelectorAll('.dropdown-item');
+                allItems.forEach((item, index) => {
+                    if (index === currentlySelectedIndex) {
+                        item.classList.add('is-selected');
+                        if (listContainer.classList.contains('is-open')) {
+                            item.scrollIntoView({ block: 'nearest' });
+                        }
+                    } else {
+                        item.classList.remove('is-selected');
+                    }
+                });
+            }
+            
+            function initialize() {
+                populateDropdownList();
+                const initialIndex = schedule.findIndex(entry => entry.date.getTime() === ROTATION_START_DATE.getTime());
+                
+                if (initialIndex !== -1) {
+                    currentlySelectedIndex = initialIndex;
+                    updateSelectedItemBox(initialIndex);
+                    updateListHighlight();
+                } else {
+                    console.error("Could not find the start date in the schedule.");
+                    selectedItemContainer.innerText = "Error generating schedule.";
+                }
+
+
+                selectedItemContainer.addEventListener('click', () => {
+                    listContainer.classList.toggle('is-open');
+                    updateSelectedItemBox(currentlySelectedIndex); 
+                    if (listContainer.classList.contains('is-open')) {
+                       updateListHighlight();
+                    }
+                });
+            }
+
+
+            initialize();
+        });
+    </script>
+</body>
+</html>
