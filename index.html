@@ -105,48 +105,85 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // --- PART 1: CONTENT & LOGIC GENERATION ---
-            const TEAM_ROTA = ['Jan Beyers', 'Can', 'Marthe', 'Azhar', 'Maegan', 'Jennifer'];
-            const ROTATION_START_DATE = new Date('2025-07-14T00:00:00Z');
-
-            function getWeekNumber(d) {
-                const year = d.getUTCFullYear();
-                let firstMonday = new Date(Date.UTC(year, 0, 1));
-                const day = firstMonday.getUTCDay();
-                if (day !== 1) {
-                    firstMonday.setUTCDate(firstMonday.getUTCDate() + (1 - day + 7) % 7);
-                }
-                if (d < firstMonday) return 1;
-                const diff = d.getTime() - firstMonday.getTime();
-                const weeksSinceFirstMonday = Math.floor(diff / (1000 * 60 * 60 * 24 * 7));
-                return weeksSinceFirstMonday + 2;
-            }
 
             function generateSchedule() {
-                const schedule = [];
-                const year = 2025;
-                let currentDate = new Date(Date.UTC(year, 0, 1));
-                let rotaIndex = 0;
-                while (currentDate.getUTCFullYear() === year) {
-                    if (currentDate.getUTCDay() === 1) {
-                        const weekNumber = getWeekNumber(currentDate);
-                        const dateString = currentDate.toLocaleDateString('en-GB', {
+                // --- EDITABLE SCHEDULE ---
+                // To change the meeting lead for a specific week, simply edit the 'person' field for the corresponding date.
+                // For example, to change the lead for August 11, find that date below and replace 'Maegan' with another name.
+                const meetingSchedule2025 = [
+                    { "date": "2025-01-06", "weekString": "Week 2", "person": "" },
+                    { "date": "2025-01-13", "weekString": "Week 3", "person": "" },
+                    { "date": "2025-01-20", "weekString": "Week 4", "person": "" },
+                    { "date": "2025-01-27", "weekString": "Week 5", "person": "" },
+                    { "date": "2025-02-03", "weekString": "Week 6", "person": "" },
+                    { "date": "2025-02-10", "weekString": "Week 7", "person": "" },
+                    { "date": "2025-02-17", "weekString": "Week 8", "person": "" },
+                    { "date": "2025-02-24", "weekString": "Week 9", "person": "" },
+                    { "date": "2025-03-03", "weekString": "Week 10", "person": "" },
+                    { "date": "2025-03-10", "weekString": "Week 11", "person": "" },
+                    { "date": "2025-03-17", "weekString": "Week 12", "person": "" },
+                    { "date": "2025-03-24", "weekString": "Week 13", "person": "" },
+                    { "date": "2025-03-31", "weekString": "Week 14", "person": "" },
+                    { "date": "2025-04-07", "weekString": "Week 15", "person": "" },
+                    { "date": "2025-04-14", "weekString": "Week 16", "person": "" },
+                    { "date": "2025-04-21", "weekString": "Week 17", "person": "" },
+                    { "date": "2025-04-28", "weekString": "Week 18", "person": "" },
+                    { "date": "2025-05-05", "weekString": "Week 19", "person": "" },
+                    { "date": "2025-05-12", "weekString": "Week 20", "person": "" },
+                    { "date": "2025-05-19", "weekString": "Week 21", "person": "" },
+                    { "date": "2025-05-26", "weekString": "Week 22", "person": "" },
+                    { "date": "2025-06-02", "weekString": "Week 23", "person": "" },
+                    { "date": "2025-06-09", "weekString": "Week 24", "person": "" },
+                    { "date": "2025-06-16", "weekString": "Week 25", "person": "" },
+                    { "date": "2025-06-23", "weekString": "Week 26", "person": "" },
+                    { "date": "2025-06-30", "weekString": "Week 27", "person": "" },
+                    { "date": "2025-07-07", "weekString": "Week 28", "person": "" },
+                    { "date": "2025-07-14", "weekString": "Week 29", "person": "Jan Beyers" },
+                    { "date": "2025-07-21", "weekString": "Week 30", "person": "Can" },
+                    { "date": "2025-07-28", "weekString": "Week 31", "person": "Marthe" },
+                    { "date": "2025-08-04", "weekString": "Week 32", "person": "Azhar" },
+                    { "date": "2025-08-11", "weekString": "Week 33", "person": "Maegan" },
+                    { "date": "2025-08-18", "weekString": "Week 34", "person": "Jennifer" },
+                    { "date": "2025-08-25", "weekString": "Week 35", "person": "Jan Beyers" },
+                    { "date": "2025-09-01", "weekString": "Week 36", "person": "Can" },
+                    { "date": "2025-09-08", "weekString": "Week 37", "person": "Marthe" },
+                    { "date": "2025-09-15", "weekString": "Week 38", "person": "Azhar" },
+                    { "date": "2025-09-22", "weekString": "Week 39", "person": "Maegan" },
+                    { "date": "2025-09-29", "weekString": "Week 40", "person": "Jennifer" },
+                    { "date": "2025-10-06", "weekString": "Week 41", "person": "Jan Beyers" },
+                    { "date": "2025-10-13", "weekString": "Week 42", "person": "Can" },
+                    { "date": "2025-10-20", "weekString": "Week 43", "person": "Marthe" },
+                    { "date": "2025-10-27", "weekString": "Week 44", "person": "Azhar" },
+                    { "date": "2025-11-03", "weekString": "Week 45", "person": "Maegan" },
+                    { "date": "2025-11-10", "weekString": "Week 46", "person": "Jennifer" },
+                    { "date": "2025-11-17", "weekString": "Week 47", "person": "Jan Beyers" },
+                    { "date": "2025-11-24", "weekString": "Week 48", "person": "Can" },
+                    { "date": "2025-12-01", "weekString": "Week 49", "person": "Marthe" },
+                    { "date": "2025-12-08", "weekString": "Week 50", "person": "Azhar" },
+                    { "date": "2025-12-15", "weekString": "Week 51", "person": "Maegan" },
+                    { "date": "2025-12-22", "weekString": "Week 52", "person": "Jennifer" },
+                    { "date": "2025-12-29", "weekString": "Week 53", "person": "Jan Beyers" }
+                ];
+                
+                // This part of the code processes the list above into the format the page needs.
+                // No need to edit anything below this line in this function.
+                return meetingSchedule2025.map(item => {
+                    const itemDate = new Date(item.date + 'T00:00:00Z');
+                    return {
+                        date: itemDate,
+                        dateString: itemDate.toLocaleDateString('en-GB', {
                             day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC'
-                        }).replace(/ /g, '/');
-                        let assignedPerson = '';
-                        if (currentDate >= ROTATION_START_DATE) {
-                            assignedPerson = TEAM_ROTA[rotaIndex % TEAM_ROTA.length];
-                            rotaIndex++;
-                        }
-                        schedule.push({
-                            date: new Date(currentDate.getTime()), dateString, weekString: `Week ${weekNumber}`, person: assignedPerson
-                        });
-                    }
-                    currentDate.setUTCDate(currentDate.getUTCDate() + 1);
-                }
-                return schedule;
+                        }).replace(/ /g, '/'),
+                        weekString: item.weekString,
+                        person: item.person
+                    };
+                });
             }
 
+
             // --- PART 2: INTERACTIVE VISUAL DESIGN ---
+            // The rest of this script handles the dropdown display and interactivity.
+            // No changes are needed here.
             const schedule = generateSchedule();
             const selectedItemContainer = document.getElementById('selected-item');
             const listContainer = document.getElementById('dropdown-list-view');
@@ -230,11 +267,16 @@
                 if (initialIndex === -1) {
                     if (today < schedule[0].date) {
                         initialIndex = 0; // If before 2025, show the first week
-                    } else if (today > schedule[schedule.length - 1].date) {
-                        initialIndex = schedule.length - 1; // If after 2025, show the last week
                     } else {
-                        // If for some reason it's still not found, default to the rotation start date
-                        initialIndex = schedule.findIndex(entry => entry.date.getTime() === ROTATION_START_DATE.getTime());
+                        // Find the closest future or past date if today is not a Monday in the schedule
+                        let closest = Infinity;
+                        schedule.forEach((entry, index) => {
+                            const diff = Math.abs(entry.date.getTime() - today.getTime());
+                            if (diff < closest) {
+                                closest = diff;
+                                initialIndex = index;
+                            }
+                        });
                     }
                 }
                 
